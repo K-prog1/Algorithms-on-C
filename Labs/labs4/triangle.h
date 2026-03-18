@@ -1,5 +1,5 @@
-#ifndef triangle
-#define triangle
+#ifndef TRIANGLE_H
+#define TRIANGLE_H
 
 double calculatePerimetr(double a, double b, double c);
 
