@@ -8,8 +8,10 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
+                "C4.c",  
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-lm"   
             ],
             "options": {
                 "cwd": "${fileDirname}"
