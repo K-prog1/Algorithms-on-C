@@ -41,5 +41,5 @@ int main(){
         }
         printf("\n");
     }
-    free(A); free(B); free(C)
+    free(A); free(B); free(C);
 }
