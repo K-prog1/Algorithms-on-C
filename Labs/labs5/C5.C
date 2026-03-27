@@ -20,26 +20,28 @@ int main(){
 
     B = (double*)malloc(n*n*sizeof(double));
 
+    printf("\nВведите матрицу A:\n");
     for (i = 0; i < n; i++ ){
         for (j = 0; j < n; j++){
-            printf("Введите значения матрицы A[%d][%d] = ", i,j);
-            scanf("%lf", (A + i*n + j));
+            printf("A[%d][%d] = ", i,j);
+            scanf("%d", (A + i*n + j));
         }
     }
-
+    printf("\nВведите матрицу B:\n");
     for (i = 0; i < n; i++ ){
         for (j = 0; j < n; j++){
-            printf("Введите значения матрицы B[%d][%d] = ", i,j);
-            scanf("%lf", (B + i*n + j));
+            printf(" B[%d][%d] = ", i,j);
+            scanf("%d", (B + i*n + j));
         }
     }
-    printf("Введите + - * (сумма вычитание или умножение матриц %c \n)", sgn);
+    printf("Введите + - * (сумма вычитание или умножение матриц  \n)");
     scanf(" %c", &sgn);
     C = calculate(A, B, sgn, n);
     
+    printf("\n Rezultat: \n");
     for (i=0;i<n;i++){
         for (j=0;j<n;j++){
-            printf("%5lf", *(A + i*n + j));
+            printf("%5d", C[i*n + j]);
         }
         printf("\n");
     }
