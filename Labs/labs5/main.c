@@ -9,16 +9,12 @@ int main(){
     int i,j,n;
     char sgn;
 
-    system("chcp 1251");
-    system("cls");
-
     printf("Введите размер матрицы:\n");
     scanf("%d", &n);
 
 
-    A = (double*)malloc(n*n*sizeof(double));
-
-    B = (double*)malloc(n*n*sizeof(double));
+    A = malloc(n*n*sizeof(double));
+    B = malloc(n*n*sizeof(double));
 
     printf("\nВведите матрицу A:\n");
     for (i = 0; i < n; i++ ){

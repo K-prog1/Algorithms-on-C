@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 double* calculate(double* A, double* B, char op, int n) {
-    double* res = (double*)malloc(n * n * sizeof(double));
+    double* res = malloc(n * n * sizeof(double));
     if (!res) return NULL;
 
     for (int i = 0; i < n; i++) {
