@@ -19,15 +19,15 @@ int main(){
     printf("\nВведите матрицу A:\n");
     for (i = 0; i < n; i++ ){
         for (j = 0; j < n; j++){
-            printf("A[%d][%d] = ", i,j);
-            scanf("%d", (A + i*n + j));
+            printf("A[%lf][%lf] = ", i,j);
+            scanf("%lf", (A + i*n + j));
         }
     }
     printf("\nВведите матрицу B:\n");
     for (i = 0; i < n; i++ ){
         for (j = 0; j < n; j++){
-            printf(" B[%d][%d] = ", i,j);
-            scanf("%d", (B + i*n + j));
+            printf(" B[%lf][%lf] = ", i,j);
+            scanf("%lf", (B + i*n + j));
         }
     }
     printf("Введите + - * (сумма вычитание или умножение матриц  \n)");
@@ -37,7 +37,7 @@ int main(){
     printf("\n Rezultat: \n");
     for (i=0;i<n;i++){
         for (j=0;j<n;j++){
-            printf("%5d", C[i*n + j]);
+            printf("%8.2f", C[i*n + j]);
         }
         printf("\n");
     }
