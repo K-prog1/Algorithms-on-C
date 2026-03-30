@@ -3,8 +3,8 @@
 
 int main(){
 
-    FILE *in = fopen("datain.txt", "r" );
-    FILE *out = fopen("dataout.txt", "w");
+    FILE *in = fopen("input.txt", "r" );
+    FILE *out = fopen("output.txt", "w");
 
     char surname[51], name[51], patronym[51];
 
