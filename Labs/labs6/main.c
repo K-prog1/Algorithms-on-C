@@ -4,7 +4,7 @@
 int main() {
     FILE *in = fopen("input.txt", "r");
     FILE *out = fopen("output.txt", "w");
-    if (!in || !out) { perror("Сучка, файлы не открыты"); return 1; }
+    if (!in || !out) { perror("файлы не открыты"); return 1; }
 
     char surname[51], name[51], patronym[51];
     int year;
