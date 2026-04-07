@@ -15,7 +15,7 @@ int main() {
 
     if (!P) return 1;
 
-    for (int i; i <= n; i++) 
+    for (int i = 2; i <= n; i++) 
     P[i] = i;
 
     int p = 2;
