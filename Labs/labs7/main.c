@@ -1,24 +1,32 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <conio.h>
-struct humen{
-    char* name[24], surname[24];
-    int* date;
-};
+#include <stdlib.h>
 
-void main(){
-    
-    FILE *in = fopen("input.txt", "r");
-    FILE *out= fopen("output.txt", "w");
-    if (!in || !out) { perror("файлы не открыты"); return 1; }
+typedef struct {
+    char name[50];
+    char surname[50];
+    int birth_year;
+} humen;
 
-    struct humen source[4];
-    struct humen sorted[4];
+int cmp(const void *a, const void *b) {
+    return ((humen*)a)->birth_year - ((humen*)b)->birth_year;
+}
 
-    
+int main() {
+    humen arr1[4], arr2[4];
 
-    fclose(in);
-    fclose(out);
+    printf("Введи 4 записи (имя фамилия год):\n");
+    for (int i = 0; i < 4; i++) {
+        scanf("%49s %49s %d", arr1[i].name, arr1[i].surname, &arr1[i].birth_year);
+    }
+
+    memcpy(arr2, arr1, sizeof(arr1));
+    qsort(arr2, 4, sizeof(humen), cmp);
+
+    printf("\nОтсортировано по году рождения:\n");
+    for (int i = 0; i < 4; i++) {
+        printf("%s %s %d\n", arr2[i].name, arr2[i].surname, arr2[i].birth_year);
+    }
+
     return 0;
-};
+}
