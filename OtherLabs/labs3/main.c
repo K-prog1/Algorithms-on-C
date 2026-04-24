@@ -15,10 +15,21 @@ typedef struct BookNode {
 char* get_field(char *block, const char *key) {
     char *p = strstr(block, key);
     if (!p) return NULL;
-    p = strchr(p, '{');
+    p = strchr(p, '=');
     if (!p) return NULL;
     p++;
-    char *end = strchr(p, '}');
+    while (*p && (*p == ' ' || *p == '\t')) p++;
+    if (*p != '{') return NULL;
+    p++;
+
+    char *end = p;
+    int depth = 1;
+    
+    while (*end && depth > 0) {
+        if (*end == '{') depth++;
+        else if (*end == '}') depth--;
+        if (depth > 0) end++;
+    }
     if (!end) return NULL;
     
     int len = end - p;
@@ -37,13 +48,10 @@ char* get_field(char *block, const char *key) {
 
 
 int cmp_books(const char *a1, const char *t1, const char *a2, const char *t2) {
-    int res = strncmp(a1, a2, 5);
+    int res = strcmp(a1, a2);
     if (res != 0) return res;
-    res = strcmp(a1, a2);
-    if (res != 0) return res;
-    res = strncmp(t1, t2, 5);
-    if (res != 0) return res;
-    return strcmp(t1, t2);
+    return strcmp(t1,t2);
+   
 }
 
 
