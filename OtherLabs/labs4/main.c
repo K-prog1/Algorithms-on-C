@@ -16,7 +16,6 @@ typedef struct exprtree {
 } exprtree;
 
 #define VALID_TOKENS "+-*/0123456789()"
-
 #define MAX_INPUT_SIZE 100
 
 char* tokenize(char*);
@@ -31,50 +30,49 @@ exprtree* parse_atomic_expression(parser_t* parser);
 exprtree* parse_number(parser_t* parser);
 
 int main(int argc, char* argv[]) {
-
+    char in[MAX_INPUT_SIZE];
     while (1) {
-
-        char in[MAX_INPUT_SIZE];
-        printf("Enter input: ");
-        scanf("\n%[^\n]", in); 
+        printf("Enter input (or 'q' to quit): ");
+        if (!fgets(in, sizeof(in), stdin)) break;
+        if (in[0] == 'q' || in[0] == '\n') break;
 
         char* tokens = tokenize(in);
+        if (!tokens || strlen(tokens) == 0) { free(tokens); continue; }
 
         exprtree* expression = parse(tokens);
-
         int value = calculate(expression);
-
         printf("The result is: %d\n", value);
 
         free_exprtree(expression);
-
+        free(tokens);
     }
-    
     return 0;
 }
 
+// strtok разбивает строку по пробелам/табам/переносам.
+// Остальные символы собираем в плоский массив, как требует твой парсер.
 char* tokenize(char* in) {
+    char* tokens = malloc(MAX_INPUT_SIZE);
+    int pos = 0;
+    char* copy = strdup(in); // strtok меняет строку, копируем чтобы не сломать in
+    if (!copy) return NULL;
 
-    char* tokens = malloc(sizeof(char) * MAX_INPUT_SIZE);
-
-    int token_pos = 0; 
-
-
-    int in_len = strlen(in);
-    for (int i = 0; i < in_len; i++)
-
-        if (strchr(VALID_TOKENS, in[i]))
-            tokens[token_pos++] = in[i];
-
-    tokens[token_pos] = '\0';
-
+    char* tok = strtok(copy, " \t\n\r");
+    while (tok != NULL) {
+        for (int i = 0; tok[i]; i++) {
+            if (strchr(VALID_TOKENS, tok[i])) {
+                tokens[pos++] = tok[i];
+            }
+        }
+        tok = strtok(NULL, " \t\n\r");
+    }
+    tokens[pos] = '\0';
+    free(copy);
     return tokens;
 }
 
 exprtree* parse(char* tokens) {
-
     parser_t* parser = malloc(sizeof(parser_t));
-
     parser->tokens = tokens;
     parser->ntokens = strlen(tokens);
     parser->pos = 0;
@@ -83,152 +81,77 @@ exprtree* parse(char* tokens) {
 
     free(parser->tokens);
     free(parser);
-    
     return expression;
 }
 
 int calculate(exprtree* expr) {
-
-    if (expr->type == 'n')
-        return expr->value;
+    if (expr->type == 'n') return expr->value;
 
     int left = calculate(expr->left);
     int right = calculate(expr->right);
     
-    if (expr->type == '+')
-        return left + right;
-    else if (expr->type == '-')
-        return left - right;
-    else if (expr->type == '*')
-        return left * right;
-    else if (expr->type == '/')
-        return left / right ? right : 0;
+    if (expr->type == '+') return left + right;
+    if (expr->type == '-') return left - right;
+    if (expr->type == '*') return left * right;
+    if (expr->type == '/') return right != 0 ? left / right : 0; // починила деление
 
     return 0;
 }
 
-exprtree* parse_add_expression(parser_t* parser) {
-
-    exprtree* expr = parse_mult_expression(parser);
-    
-    while (parser->pos < parser->ntokens &&
-            (parser->tokens[parser->pos] == '+' || parser->tokens[parser->pos] == '-')) {
-
-        char type = parser->tokens[parser->pos];
-
-        parser->pos++;
-
-        exprtree* right_expr = parse_mult_expression(parser);
-
-
-        expr = create_exprtree(type, 0, expr, right_expr); 
+exprtree* parse_add_expression(parser_t* p) {
+    exprtree* expr = parse_mult_expression(p);
+    while (p->pos < p->ntokens && (p->tokens[p->pos] == '+' || p->tokens[p->pos] == '-')) {
+        char type = p->tokens[p->pos++];
+        exprtree* right = parse_mult_expression(p);
+        expr = create_exprtree(type, 0, expr, right);
     }
-    
     return expr;
-
-} 
-
-exprtree* parse_mult_expression(parser_t* parser) {
-
-    exprtree* expr = parse_atomic_expression(parser);
-    
-    while (parser->pos < parser->ntokens &&
-            (parser->tokens[parser->pos] == '*' || parser->tokens[parser->pos] == '/')) {
-
-        char type = parser->tokens[parser->pos];
-
-        parser->pos++;
-
-        exprtree* right_expr = parse_atomic_expression(parser);
-
-        expr = create_exprtree(type, 0, expr, right_expr); 
-    }
-    
-    return expr;
-
 }
 
-exprtree* parse_atomic_expression(parser_t* parser) {
-
-
-
-    exprtree* expr;
-
-    if (parser->tokens[parser->pos] == '(') {
-
-        parser->pos++;
-
-
-        expr = parse_add_expression(parser);
-
-        if (parser->tokens[parser->pos] == ')')
-            parser->pos++;
-        else {
-            
-            fprintf(stderr, "Invalid input\n");
-            exit(1);
-        }
-        
-    } else {
- 
-        expr = parse_number(parser);
+exprtree* parse_mult_expression(parser_t* p) {
+    exprtree* expr = parse_atomic_expression(p);
+    while (p->pos < p->ntokens && (p->tokens[p->pos] == '*' || p->tokens[p->pos] == '/')) {
+        char type = p->tokens[p->pos++];
+        exprtree* right = parse_atomic_expression(p);
+        expr = create_exprtree(type, 0, expr, right);
     }
-    
     return expr;
-
 }
 
-exprtree* parse_number(parser_t* parser) {
-
-
-    char number[MAX_INPUT_SIZE];
-    int numberlen = 0;
-
-    while (strchr("0123456789", parser->tokens[parser->pos]) &&
-            numberlen < MAX_INPUT_SIZE && parser->pos < parser->ntokens) {
-
-        number[numberlen++] = parser->tokens[parser->pos];
-        parser->pos++;
+exprtree* parse_atomic_expression(parser_t* p) {
+    if (p->pos < p->ntokens && p->tokens[p->pos] == '(') {
+        p->pos++;
+        exprtree* expr = parse_add_expression(p);
+        if (p->pos < p->ntokens && p->tokens[p->pos] == ')') p->pos++;
+        else { fprintf(stderr, "Invalid input: missing ')'\n"); exit(1); }
+        return expr;
     }
-    number[numberlen] = '\0';
+    return parse_number(p);
+}
 
-    if (numberlen == 0) {
-        fprintf(stderr, "Invalid input, couldn't parse number\n");
-        exit(1);
+exprtree* parse_number(parser_t* p) {
+    char num[MAX_INPUT_SIZE];
+    int len = 0;
+    while (p->pos < p->ntokens && strchr("0123456789", p->tokens[p->pos]) && len < MAX_INPUT_SIZE - 1) {
+        num[len++] = p->tokens[p->pos++];
     }
-
-    int value = atoi(number);
-    
-    exprtree* number_expr = create_exprtree('n', value, NULL, NULL);
-
-    return number_expr;
-
+    num[len] = '\0';
+    if (len == 0) { fprintf(stderr, "Invalid input: expected number\n"); exit(1); }
+    return create_exprtree('n', atoi(num), NULL, NULL);
 }
 
 static exprtree* create_exprtree(char type, int value, exprtree* left, exprtree* right) {
-
     exprtree* expr = malloc(sizeof(exprtree));
-
     expr->type = type;
     expr->value = value;
     expr->left = left;
     expr->right = right;
-
     return expr;
-
 }
 
 static void free_exprtree(exprtree* expr) {
-
-    if (expr) {
-
-        if (expr->left)
-            free_exprtree(expr->left);
-        if (expr->right)
-            free_exprtree(expr->right);
-
-        free(expr);
-
-    }
-
+    if (!expr) return;
+    free_exprtree(expr->left);
+    free_exprtree(expr->right);
+    free(expr);
 }
