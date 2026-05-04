@@ -12,9 +12,9 @@ long long last_tail[MAXN];
 int ans = 0;
 int n, L;
 
-/* Итеративный DFS (без рекурсии — до 10^5 вершин, стек ОС мал) */
-int stk[MAXN];    /* стек вершин   */
-int par[MAXN];    /* родитель       */
+
+int stk[MAXN]; 
+int par[MAXN];   
 
 void solve(void) {
     int top = 0;
